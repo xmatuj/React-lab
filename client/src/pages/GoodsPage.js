@@ -23,11 +23,7 @@ const GoodsPage = ({ isAuthenticated }) => {
     const categories = [
         { value: 'all', label: 'Все категории' },
         { value: 'guitars', label: 'Гитары' },
-        { value: 'keyboards', label: 'Клавишные' },
-        { value: 'drums', label: 'Ударные' },
-        { value: 'wind', label: 'Духовые' },
-        { value: 'string', label: 'Смычковые' },
-        { value: 'accessories', label: 'Аксессуары' }
+        { value: 'keyboards', label: 'Клавишные' }
     ];
 
     return (

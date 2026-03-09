@@ -7,18 +7,18 @@ import DeleteConfirm from './DeleteConfirm';
 import { useThemeContext, ThemeToggle } from './ThemeManager';
 import './App.css';
 
-// Начальные данные (имитация библиотеки)
+// Начальные данные
 const initialTracks = [
-    { id: 1, title: "Blinding Lights", artist: "The Weeknd", duration: "3:20", album: "After Hours" },
-    { id: 2, title: "Flowers", artist: "Miley Cyrus", duration: "3:21", album: "Endless Summer Vacation" },
-    { id: 3, title: "Bohemian Rhapsody", artist: "Queen", duration: "5:55", album: "A Night at the Opera" },
-    { id: 4, title: "Houdini", artist: "Dua Lipa", duration: "3:05", album: "Radical Optimism" },
+    { id: 1, title: "Группа крови", artist: "КИНО", duration: "3:20", album: "Последний герой" },
+    { id: 2, title: "Ковер вертолет", artist: "Агата Кристи", duration: "3:21", album: "Ностальгия" },
+    { id: 3, title: "Поезда", artist: "Женя Трофимов", duration: "2:55", album: "Single" },
+    { id: 4, title: "Лесник", artist: "Король и шут", duration: "3:05", album: "Будь как дома, путник" },
 ];
 
 function App() {
     const { theme } = useThemeContext();
     const [tracks, setTracks] = useState(initialTracks);
-    const [playlists, setPlaylists] = useState({ 'Favorites': [1, 3] }); // Пример плейлиста
+    const [playlists, setPlaylists] = useState({ 'Favorites': [1, 3] });
     const [currentTrackId, setCurrentTrackId] = useState(null);
     const [view, setView] = useState('library'); // library, addTrack, deleteTrack
     const [trackToDelete, setTrackToDelete] = useState(null);
@@ -66,73 +66,54 @@ function App() {
         }
     };
 
-    // Добавить новые состояния
 const [currentTime, setCurrentTime] = useState('0:00');
 const [volume, setVolume] = useState(70);
 const [audioProgress, setAudioProgress] = useState(0);
 
-// Функции управления плеером
-const playNext = () => {
-    if (!currentTrackId) return;
-    const currentIndex = tracks.findIndex(t => t.id === currentTrackId);
-    if (currentIndex < tracks.length - 1) {
-        setCurrentTrackId(tracks[currentIndex + 1].id);
-        setAudioProgress(0);
-        setCurrentTime('0:00');
-    }
-};
+    // Функции управления плеером
+    const playNext = () => {
+        if (!currentTrackId) return;
+        const currentIndex = tracks.findIndex(t => t.id === currentTrackId);
+        if (currentIndex < tracks.length - 1) {
+            setCurrentTrackId(tracks[currentIndex + 1].id);
+            setAudioProgress(0);
+            setCurrentTime('0:00');
+        }
+    };
 
-const playPrev = () => {
-    if (!currentTrackId) return;
-    const currentIndex = tracks.findIndex(t => t.id === currentTrackId);
-    if (currentIndex > 0) {
-        setCurrentTrackId(tracks[currentIndex - 1].id);
-        setAudioProgress(0);
-        setCurrentTime('0:00');
-    }
-};
+    const playPrev = () => {
+        if (!currentTrackId) return;
+        const currentIndex = tracks.findIndex(t => t.id === currentTrackId);
+        if (currentIndex > 0) {
+            setCurrentTrackId(tracks[currentIndex - 1].id);
+            setAudioProgress(0);
+            setCurrentTime('0:00');
+        }
+    };
 
-const handleProgressClick = (e) => {
-    const progressBar = e.currentTarget;
-    const clickPosition = e.clientX - progressBar.getBoundingClientRect().left;
-    const percent = (clickPosition / progressBar.offsetWidth) * 100;
-    setAudioProgress(percent);
+    const handleProgressClick = (e) => {
+        const progressBar = e.currentTarget;
+        const clickPosition = e.clientX - progressBar.getBoundingClientRect().left;
+        const percent = (clickPosition / progressBar.offsetWidth) * 100;
+        setAudioProgress(percent);
     
-    const track = tracks.find(t => t.id === currentTrackId);
-    if (track) {
-        const [mins, secs] = track.duration.split(':').map(Number);
-        const totalSeconds = mins * 60 + secs;
-        const newTime = Math.floor((percent / 100) * totalSeconds);
-        const newMins = Math.floor(newTime / 60);
-        const newSecs = newTime % 60;
-        setCurrentTime(`${newMins}:${newSecs.toString().padStart(2, '0')}`);
-    }
-};
+        const track = tracks.find(t => t.id === currentTrackId);
+        if (track) {
+            const [mins, secs] = track.duration.split(':').map(Number);
+            const totalSeconds = mins * 60 + secs;
+            const newTime = Math.floor((percent / 100) * totalSeconds);
+            const newMins = Math.floor(newTime / 60);
+            const newSecs = newTime % 60;
+            setCurrentTime(`${newMins}:${newSecs.toString().padStart(2, '0')}`);
+        }
+    };
 
-const handleVolumeClick = (e) => {
-    const volumeBar = e.currentTarget;
-    const clickPosition = e.clientX - volumeBar.getBoundingClientRect().left;
-    const percent = (clickPosition / volumeBar.offsetWidth) * 100;
-    setVolume(Math.min(100, Math.max(0, percent)));
-};
-
-// В NowPlaying передаем новые пропсы
-{currentTrackId && (
-    <NowPlaying
-        track={tracks.find(t => t.id === currentTrackId)}
-        isPlaying={isPlaying}
-        onTogglePlay={() => setIsPlaying(!isPlaying)}
-        onClose={() => setCurrentTrackId(null)}
-        onNext={playNext}
-        onPrev={playPrev}
-        currentTime={currentTime}
-        audioProgress={audioProgress}
-        onProgressClick={handleProgressClick}
-        volume={volume}
-        onVolumeClick={handleVolumeClick}
-    />
-)}
-
+    const handleVolumeClick = (e) => {
+        const volumeBar = e.currentTarget;
+        const clickPosition = e.clientX - volumeBar.getBoundingClientRect().left;
+        const percent = (clickPosition / volumeBar.offsetWidth) * 100;
+        setVolume(Math.min(100, Math.max(0, percent)));
+    };
     return (
     <div className={`app ${theme}`}>
         <ThemeToggle />
@@ -158,7 +139,7 @@ const handleVolumeClick = (e) => {
                         onTogglePlay={togglePlay}
                         onDeleteRequest={(id) => { setTrackToDelete(id); setView('deleteTrack'); }}
                         onAddToPlaylist={(playlistName, trackId) => {
-                            if (!playlists[playlistName].includes(trackId)) {
+                            if (playlists[playlistName] && !playlists[playlistName].includes(trackId)) {
                                 setPlaylists({
                                     ...playlists,
                                     [playlistName]: [...playlists[playlistName], trackId]

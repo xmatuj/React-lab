@@ -12,7 +12,7 @@ const LoginPage = ({ onLogin, isAuthenticated }) => {
     
     const navigate = useNavigate();
 
-    // Если пользователь уже авторизован, перенаправляем на главную
+    // Если пользователь уже авторизован перенаправляем на главную
     if (isAuthenticated) {
         return <Navigate to="/" replace />;
     }
@@ -102,7 +102,7 @@ const LoginPage = ({ onLogin, isAuthenticated }) => {
                 </form>
                 
                 <p style={{ marginTop: '20px', textAlign: 'center', color: '#888' }}>
-                    Тестовые данные: любое имя и пароль (более 3 символов)
+                    Тестовые данные: любое имя и пароль
                 </p>
             </div>
         </div>

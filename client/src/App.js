@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 
 import Header from './components/Header';
@@ -67,7 +67,7 @@ function App() {
     }
 
     return (
-        <BrowserRouter>
+        <>
             <Header 
                 isAuthenticated={isAuthenticated}
                 user={user}
@@ -76,6 +76,9 @@ function App() {
             
             <main style={{ minHeight: 'calc(100vh - 200px)' }}>
                 <Routes>
+                    {/* <Route path="/" element={<ProtectedRoute role="admin" />}>
+                        <Route path="/admin" element={<AdminPanelPage />} />
+                    </Route> */}
                     <Route path="/" element={<HomePage />} />
                     <Route 
                         path="/login" 
@@ -97,7 +100,7 @@ function App() {
             </main>
             
             <Footer />
-        </BrowserRouter>
+        </>
     );
 }
 

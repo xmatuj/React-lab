@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../store/actions/authActions';
 
-const API_URL = 'http://localhost:3001/api';
-
-const LoginPage = ({ onLogin, isAuthenticated }) => {
+const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [localError, setLocalError] = useState('');
     
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { loading, error, isAuthenticated } = useSelector(state => state.auth);
 
     // Если пользователь уже авторизован перенаправляем на главную
     if (isAuthenticated) {
@@ -19,51 +19,35 @@ const LoginPage = ({ onLogin, isAuthenticated }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLocalError('');
         
         if (!username.trim() || !password.trim()) {
-            setError('Пожалуйста, заполните все поля');
+            setLocalError('Пожалуйста, заполните все поля');
             return;
         }
 
-        setLoading(true);
-        setError('');
-
         try {
-            const response = await axios.post(`${API_URL}/login`, {
-                username: username.trim(),
-                password: password.trim()
-            });
-
-            if (response.data.success) {
-                // Сохраняем токен и данные пользователя
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-                
-                // Вызываем функцию onLogin из родительского компонента
-                onLogin(response.data.user);
-                
-                // Перенаправляем на страницу товаров
+            const result = await dispatch(login(username.trim(), password.trim()));
+            
+            if (result.success) {
                 navigate('/goods');
             } else {
-                setError(response.data.error || 'Ошибка авторизации');
+                setLocalError(result.error || 'Ошибка авторизации');
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError(
-                err.response?.data?.error || 
-                'Ошибка соединения с сервером'
-            );
-        } finally {
-            setLoading(false);
+            setLocalError('Ошибка соединения с сервером');
         }
     };
+
+    const displayError = localError || error;
 
     return (
         <div className="container">
             <div className="login-container">
                 <h2>Вход в личный кабинет</h2>
                 
-                {error && <div className="error-message">{error}</div>}
+                {displayError && <div className="error-message">{displayError}</div>}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -102,7 +86,9 @@ const LoginPage = ({ onLogin, isAuthenticated }) => {
                 </form>
                 
                 <p style={{ marginTop: '20px', textAlign: 'center', color: '#888' }}>
-                    Тестовые данные: любое имя и пароль
+                    Тестовые данные:<br/>
+                    user / password<br/>
+                    admin / admin123
                 </p>
             </div>
         </div>

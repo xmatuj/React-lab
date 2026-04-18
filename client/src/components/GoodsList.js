@@ -1,6 +1,14 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/actions/cartActions';
 
 const GoodsList = ({ items, loading, error, hasMore, onLoadMore }) => {
+    const dispatch = useDispatch();
+
+    const handleAddToCart = (item) => {
+        dispatch(addToCart(item));
+    };
+
     if (loading && items.length === 0) {
         return <div className="loading">Загрузка товаров...</div>;
     }
@@ -39,6 +47,7 @@ const GoodsList = ({ items, loading, error, hasMore, onLoadMore }) => {
                         <th>Название</th>
                         <th>Дата выпуска</th>
                         <th>Цена</th>
+                        <th>Действие</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +56,14 @@ const GoodsList = ({ items, loading, error, hasMore, onLoadMore }) => {
                             <td>{item.name}</td>
                             <td>{formatDate(item.releaseDate)}</td>
                             <td className="price">{formatPrice(item.price)}</td>
+                            <td>
+                                <button 
+                                    className="btn add-to-cart-btn"
+                                    onClick={() => handleAddToCart(item)}
+                                >
+                                    В корзину
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

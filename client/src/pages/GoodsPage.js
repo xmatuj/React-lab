@@ -1,24 +1,26 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import useServerGoods from '../hooks/useServerGoods';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import GoodsList from '../components/GoodsList';
+import { fetchGoods, setCategory } from '../store/actions/goodsActions';
 
-const GoodsPage = ({ isAuthenticated }) => {
-    const {
-        items,
-        loading,
-        error,
-        hasMore,
-        total,
-        category,
-        changeCategory,
-        loadMore
-    } = useServerGoods(10);
+const GoodsPage = () => {
+    const dispatch = useDispatch();
+    const { items, loading, error, hasMore, total, category } = useSelector(state => state.goods);
 
-    // Если пользователь не авторизован, перенаправляем на страницу входа
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
+    useEffect(() => {
+        dispatch(fetchGoods(1, 10, category, true));
+    }, [dispatch, category]);
+
+    const handleCategoryChange = (newCategory) => {
+        dispatch(setCategory(newCategory));
+    };
+
+    const handleLoadMore = () => {
+        if (!loading && hasMore) {
+            const nextPage = Math.floor(items.length / 10) + 1;
+            dispatch(fetchGoods(nextPage, 10, category, false));
+        }
+    };
 
     const categories = [
         { value: 'all', label: 'Все категории' },
@@ -33,7 +35,7 @@ const GoodsPage = ({ isAuthenticated }) => {
                 <div className="category-filter">
                     <select 
                         value={category} 
-                        onChange={(e) => changeCategory(e.target.value)}
+                        onChange={(e) => handleCategoryChange(e.target.value)}
                         disabled={loading}
                     >
                         {categories.map(cat => (
@@ -56,7 +58,7 @@ const GoodsPage = ({ isAuthenticated }) => {
                 loading={loading}
                 error={error}
                 hasMore={hasMore}
-                onLoadMore={loadMore}
+                onLoadMore={handleLoadMore}
             />
         </div>
     );

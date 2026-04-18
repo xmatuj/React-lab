@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useAuth } from '../context/AuthContext';
 
-const Header = ({ isAuthenticated, user, onLogout }) => {
+const Header = () => {
     const navigate = useNavigate();
+    const { isAuthenticated, user, logout } = useAuth();
+    const cartItems = useSelector(state => state.cart.totalItems);
 
     const handleLogout = () => {
-        onLogout();
+        logout();
         navigate('/');
     };
 
@@ -32,6 +36,25 @@ const Header = ({ isAuthenticated, user, onLogout }) => {
                         Товары
                     </NavLink>
                     
+                    {isAuthenticated && (
+                        <NavLink 
+                            to="/orders" 
+                            className={({ isActive }) => isActive ? 'active' : ''}
+                        >
+                            Мои заказы
+                        </NavLink>
+                    )}
+                    
+                    <NavLink 
+                        to="/cart" 
+                        className={({ isActive }) => isActive ? 'active cart-link' : 'cart-link'}
+                    >
+                        Корзина
+                        {cartItems > 0 && (
+                            <span className="cart-badge">{cartItems}</span>
+                        )}
+                    </NavLink>
+                    
                     {isAuthenticated ? (
                         <>
                             <span style={{ color: '#ff5722', padding: '8px 16px' }}>
@@ -51,12 +74,20 @@ const Header = ({ isAuthenticated, user, onLogout }) => {
                             </button>
                         </>
                     ) : (
-                        <NavLink 
-                            to="/login" 
-                            className={({ isActive }) => isActive ? 'active' : ''}
-                        >
-                            Вход
-                        </NavLink>
+                        <>
+                            <NavLink 
+                                to="/login" 
+                                className={({ isActive }) => isActive ? 'active' : ''}
+                            >
+                                Вход
+                            </NavLink>
+                            <NavLink 
+                                to="/register" 
+                                className={({ isActive }) => isActive ? 'active' : ''}
+                            >
+                                Регистрация
+                            </NavLink>
+                        </>
                     )}
                 </nav>
             </div>

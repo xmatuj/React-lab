@@ -44,18 +44,18 @@ const Header = () => {
                             >
                                 Мои заказы
                             </NavLink>
+
+                            <NavLink 
+                                to="/cart" 
+                                className={({ isActive }) => isActive ? 'active cart-link' : 'cart-link'}
+                            >
+                                Корзина
+                                {cartItems > 0 && (
+                                    <span className="cart-badge">{cartItems}</span>
+                                )}
+                            </NavLink>
                         </>
                     )}
-                    
-                    <NavLink 
-                        to="/cart" 
-                        className={({ isActive }) => isActive ? 'active cart-link' : 'cart-link'}
-                    >
-                        Корзина
-                        {cartItems > 0 && (
-                            <span className="cart-badge">{cartItems}</span>
-                        )}
-                    </NavLink>
                     
                     {isAuthenticated ? (
                         <>

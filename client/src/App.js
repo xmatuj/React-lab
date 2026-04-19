@@ -28,9 +28,13 @@ function App() {
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
-                        <Route path="/cart" element={<CartPage />} />
                         
                         {/* Защищенные маршруты */}
+                        <Route path="/cart" element={
+                            <ProtectedRoute>
+                                <CartPage />
+                            </ProtectedRoute>
+                        } />
                         <Route path="/goods" element={
                             <ProtectedRoute>
                                 <GoodsPage />

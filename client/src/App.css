@@ -228,7 +228,7 @@ body.dark {
     border: 2px dashed var(--border);
 }
 
-/* Плеер (как в Spotify) */
+/* Плеер */
 .now-playing-bar {
     position: fixed;
     bottom: 0;

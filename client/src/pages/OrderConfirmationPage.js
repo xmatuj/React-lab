@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
-import { fetchOrders } from '../store/actions/ordersActions';
+import { fetchOrders } from '../store/slices/ordersSlice';
 
 const OrderConfirmationPage = () => {
     const { orderId } = useParams();

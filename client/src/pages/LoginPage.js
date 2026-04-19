@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../store/actions/authActions';
+import { login } from '../store/slices/authSlice';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
@@ -13,10 +13,8 @@ const LoginPage = () => {
     const location = useLocation();
     const { loading, error, isAuthenticated } = useSelector(state => state.auth);
 
-    // Получаем URL, с которого пользователь был перенаправлен
     const from = location.state?.from?.pathname || '/goods';
 
-    // Если пользователь уже авторизован, перенаправляем
     if (isAuthenticated) {
         return <Navigate to={from} replace />;
     }
@@ -31,16 +29,17 @@ const LoginPage = () => {
         }
 
         try {
-            const result = await dispatch(login(username.trim(), password.trim()));
+            const result = await dispatch(login({ 
+                username: username.trim(), 
+                password: password.trim() 
+            })).unwrap();
             
             if (result.success) {
                 navigate(from, { replace: true });
-            } else {
-                setLocalError(result.error || 'Ошибка авторизации');
             }
         } catch (err) {
             console.error('Login error:', err);
-            setLocalError('Ошибка соединения с сервером');
+            setLocalError(err || 'Ошибка авторизации');
         }
     };
 

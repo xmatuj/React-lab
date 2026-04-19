@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchOrders } from '../store/actions/ordersActions';
+import { fetchOrders } from '../store/slices/ordersSlice';
 import { useNavigate } from 'react-router-dom';
 
 const OrdersPage = () => {

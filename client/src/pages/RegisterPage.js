@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { register, login } from '../store/actions/authActions';
+import { register, login } from '../store/slices/authSlice';
 
 const RegisterPage = () => {
     const dispatch = useDispatch();
@@ -15,7 +15,6 @@ const RegisterPage = () => {
         confirmPassword: ''
     });
     const [validationError, setValidationError] = useState('');
-    const [isRegistering, setIsRegistering] = useState(false);
 
     if (isAuthenticated) {
         navigate('/');
@@ -32,71 +31,49 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setValidationError('');
-        setIsRegistering(true);
 
         // Валидация
         if (!formData.username || !formData.email || !formData.password) {
             setValidationError('Все поля обязательны для заполнения');
-            setIsRegistering(false);
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
             setValidationError('Пароли не совпадают');
-            setIsRegistering(false);
             return;
         }
 
         if (formData.password.length < 6) {
             setValidationError('Пароль должен содержать минимум 6 символов');
-            setIsRegistering(false);
             return;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setValidationError('Введите корректный email');
-            setIsRegistering(false);
             return;
         }
 
         try {
             // Сначала регистрируем пользователя
-            const registerResult = await dispatch(register(
-                formData.username,
-                formData.password,
-                formData.email
-            ));
+            await dispatch(register({
+                username: formData.username,
+                password: formData.password,
+                email: formData.email
+            })).unwrap();
 
-            if (registerResult.success) {
-                // Если регистрация успешна, автоматически входим
-                const loginResult = await dispatch(login(
-                    formData.username,
-                    formData.password
-                ));
+            // Если регистрация успешна, автоматически входим
+            await dispatch(login({
+                username: formData.username,
+                password: formData.password
+            })).unwrap();
 
-                if (loginResult.success) {
-                    // Перенаправляем на страницу товаров
-                    navigate('/goods');
-                } else {
-                    // Если вход не удался, перенаправляем на страницу входа
-                    setValidationError('Регистрация успешна, но не удалось выполнить вход. Пожалуйста, войдите вручную.');
-                    setTimeout(() => {
-                        navigate('/login');
-                    }, 2000);
-                }
-            } else {
-                setValidationError(registerResult.error || 'Ошибка регистрации');
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            setValidationError('Ошибка соединения с сервером');
-        } finally {
-            setIsRegistering(false);
+            // Перенаправляем на страницу товаров
+            navigate('/goods');
+        } catch (err) {
+            setValidationError(err || 'Ошибка регистрации');
         }
     };
-
-    const isLoading = loading || isRegistering;
 
     return (
         <div className="container">
@@ -118,7 +95,7 @@ const RegisterPage = () => {
                             name="username"
                             value={formData.username}
                             onChange={handleChange}
-                            disabled={isLoading}
+                            disabled={loading}
                             required
                             placeholder="Введите имя пользователя"
                             autoComplete="username"
@@ -133,7 +110,7 @@ const RegisterPage = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            disabled={isLoading}
+                            disabled={loading}
                             required
                             placeholder="Введите email"
                             autoComplete="email"
@@ -148,7 +125,7 @@ const RegisterPage = () => {
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            disabled={isLoading}
+                            disabled={loading}
                             required
                             placeholder="Минимум 6 символов"
                             autoComplete="new-password"
@@ -163,7 +140,7 @@ const RegisterPage = () => {
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            disabled={isLoading}
+                            disabled={loading}
                             required
                             placeholder="Повторите пароль"
                             autoComplete="new-password"
@@ -173,10 +150,10 @@ const RegisterPage = () => {
                     <button 
                         type="submit" 
                         className="btn primary-btn"
-                        disabled={isLoading}
+                        disabled={loading}
                         style={{ width: '100%' }}
                     >
-                        {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+                        {loading ? 'Регистрация...' : 'Зарегистрироваться'}
                     </button>
                 </form>
                 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth, logout as logoutAction } from '../store/actions/authActions';
+import { checkAuth, logout as logoutAction } from '../store/slices/authSlice';
 
 const AuthContext = createContext();
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { removeFromCart, updateQuantity } from '../store/actions/cartActions';
+import { removeFromCart, updateQuantity } from '../store/slices/cartSlice';
 
 const CartPage = () => {
     const dispatch = useDispatch();
@@ -11,7 +11,7 @@ const CartPage = () => {
 
     const handleQuantityChange = (itemId, quantity) => {
         if (quantity > 0) {
-            dispatch(updateQuantity(itemId, quantity));
+            dispatch(updateQuantity({ itemId, quantity }));
         }
     };
 

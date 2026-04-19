@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import GoodsList from '../components/GoodsList';
-import { fetchGoods, setCategory } from '../store/actions/goodsActions';
+import { fetchGoods, setCategory } from '../store/slices/goodsSlice';
 
 const GoodsPage = () => {
     const dispatch = useDispatch();
     const { items, loading, error, hasMore, total, category } = useSelector(state => state.goods);
 
     useEffect(() => {
-        dispatch(fetchGoods(1, 10, category, true));
+        dispatch(fetchGoods({ page: 1, limit: 10, category, reset: true }));
     }, [dispatch, category]);
 
     const handleCategoryChange = (newCategory) => {
@@ -18,7 +18,7 @@ const GoodsPage = () => {
     const handleLoadMore = () => {
         if (!loading && hasMore) {
             const nextPage = Math.floor(items.length / 10) + 1;
-            dispatch(fetchGoods(nextPage, 10, category, false));
+            dispatch(fetchGoods({ page: nextPage, limit: 10, category, reset: false }));
         }
     };
 

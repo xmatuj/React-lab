@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { createOrder } from '../store/actions/ordersActions';
-import { clearCart } from '../store/actions/cartActions';
+import { createOrder } from '../store/slices/ordersSlice';
+import { clearCart } from '../store/slices/cartSlice';
 
 const CheckoutPage = () => {
     const dispatch = useDispatch();
@@ -55,11 +55,12 @@ const CheckoutPage = () => {
             paymentMethod: formData.paymentMethod
         };
 
-        const result = await dispatch(createOrder(orderData));
-        
-        if (result.success) {
+        try {
+            const order = await dispatch(createOrder(orderData)).unwrap();
             dispatch(clearCart());
-            navigate(`/order-confirmation/${result.order.id}`);
+            navigate(`/order-confirmation/${order.id}`);
+        } catch (error) {
+            console.error('Order creation failed:', error);
         }
         
         setProcessing(false);

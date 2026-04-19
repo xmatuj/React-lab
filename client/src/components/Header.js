@@ -29,20 +29,22 @@ const Header = () => {
                         Главная
                     </NavLink>
                     
-                    <NavLink 
-                        to="/goods" 
-                        className={({ isActive }) => isActive ? 'active' : ''}
-                    >
-                        Товары
-                    </NavLink>
-                    
                     {isAuthenticated && (
-                        <NavLink 
-                            to="/orders" 
-                            className={({ isActive }) => isActive ? 'active' : ''}
-                        >
-                            Мои заказы
-                        </NavLink>
+                        <>
+                            <NavLink 
+                                to="/goods" 
+                                className={({ isActive }) => isActive ? 'active' : ''}
+                            >
+                                Товары
+                            </NavLink>
+                            
+                            <NavLink 
+                                to="/orders" 
+                                className={({ isActive }) => isActive ? 'active' : ''}
+                            >
+                                Мои заказы
+                            </NavLink>
+                        </>
                     )}
                     
                     <NavLink 

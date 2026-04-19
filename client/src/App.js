@@ -24,11 +24,18 @@ function App() {
                 
                 <main style={{ minHeight: 'calc(100vh - 200px)' }}>
                     <Routes>
+                        {/* Публичные маршруты */}
                         <Route path="/" element={<HomePage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/register" element={<RegisterPage />} />
-                        <Route path="/goods" element={<GoodsPage />} />
                         <Route path="/cart" element={<CartPage />} />
+                        
+                        {/* Защищенные маршруты */}
+                        <Route path="/goods" element={
+                            <ProtectedRoute>
+                                <GoodsPage />
+                            </ProtectedRoute>
+                        } />
                         
                         <Route path="/checkout" element={
                             <ProtectedRoute>
@@ -48,6 +55,7 @@ function App() {
                             </ProtectedRoute>
                         } />
                         
+                        {/* Редирект для несуществующих маршрутов */}
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </main>

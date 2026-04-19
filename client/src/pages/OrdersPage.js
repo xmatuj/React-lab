@@ -7,15 +7,10 @@ const OrdersPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { orders, loading, error } = useSelector(state => state.orders);
-    const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
     useEffect(() => {
-        if (isAuthenticated) {
-            dispatch(fetchOrders());
-        } else {
-            navigate('/login');
-        }
-    }, [dispatch, isAuthenticated, navigate]);
+        dispatch(fetchOrders());
+    }, [dispatch]);
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('ru-RU', {
@@ -32,17 +27,6 @@ const OrdersPage = () => {
             hour: '2-digit',
             minute: '2-digit'
         });
-    };
-
-    const getStatusText = (status) => {
-        const statusMap = {
-            'pending': 'В обработке',
-            'processing': 'Готовится к отправке',
-            'shipped': 'Отправлен',
-            'delivered': 'Доставлен',
-            'cancelled': 'Отменен'
-        };
-        return statusMap[status] || status;
     };
 
     if (loading) {
@@ -76,9 +60,6 @@ const OrdersPage = () => {
                                     <h3>Заказ #{order.id}</h3>
                                     <p className="order-date">{formatDate(order.createdAt)}</p>
                                 </div>
-                                <div className={`order-status status-${order.status}`}>
-                                    {getStatusText(order.status)}
-                                </div>
                             </div>
                             
                             <div className="order-items">
@@ -94,12 +75,6 @@ const OrdersPage = () => {
                                 <div className="order-total">
                                     <strong>Итого: {formatPrice(order.totalAmount)}</strong>
                                 </div>
-                                <button 
-                                    className="btn secondary-btn"
-                                    onClick={() => navigate(`/order/${order.id}`)}
-                                >
-                                    Подробнее
-                                </button>
                             </div>
                         </div>
                     ))}

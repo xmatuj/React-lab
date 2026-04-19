@@ -1,14 +1,24 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
 
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading } = useSelector(state => state.auth);
 
     if (loading) {
-        return <div className="loading">Загрузка...</div>;
+        return (
+            <div className="loading" style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh' 
+            }}>
+                Загрузка...
+            </div>
+        );
     }
 
     if (!isAuthenticated) {
+        // Сохраняем текущий URL для редиректа после входа
         return <Navigate to="/login" replace />;
     }
 

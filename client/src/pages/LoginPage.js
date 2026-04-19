@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../store/actions/authActions';
 
@@ -10,11 +10,15 @@ const LoginPage = () => {
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const { loading, error, isAuthenticated } = useSelector(state => state.auth);
 
-    // Если пользователь уже авторизован перенаправляем на главную
+    // Получаем URL, с которого пользователь был перенаправлен
+    const from = location.state?.from?.pathname || '/goods';
+
+    // Если пользователь уже авторизован, перенаправляем
     if (isAuthenticated) {
-        return <Navigate to="/" replace />;
+        return <Navigate to={from} replace />;
     }
 
     const handleSubmit = async (e) => {
@@ -30,7 +34,7 @@ const LoginPage = () => {
             const result = await dispatch(login(username.trim(), password.trim()));
             
             if (result.success) {
-                navigate('/goods');
+                navigate(from, { replace: true });
             } else {
                 setLocalError(result.error || 'Ошибка авторизации');
             }
@@ -89,6 +93,22 @@ const LoginPage = () => {
                     Тестовые данные:<br/>
                     user / password<br/>
                     admin / admin123
+                </p>
+                
+                <p style={{ marginTop: '20px', textAlign: 'center' }}>
+                    Нет аккаунта?{' '}
+                    <button 
+                        onClick={() => navigate('/register')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#ff5722',
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                        }}
+                    >
+                        Зарегистрироваться
+                    </button>
                 </p>
             </div>
         </div>

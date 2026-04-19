@@ -82,38 +82,49 @@ export const register = (username, password, email) => {
         dispatch({ type: REGISTER_REQUEST });
         
         try {
+            console.log('Attempting registration:', { username, email });
+            
             const response = await axios.post(`${API_URL}/register`, {
                 username,
                 password,
                 email
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
+            
+            console.log('Register response:', response.data);
             
             if (response.data.success) {
                 dispatch({
                     type: REGISTER_SUCCESS,
                     payload: response.data.user
                 });
-                return { success: true };
+                return { success: true, user: response.data.user };
             } else {
                 dispatch({
                     type: REGISTER_FAILURE,
-                    payload: response.data.error
+                    payload: response.data.error || 'Ошибка регистрации'
                 });
                 return { success: false, error: response.data.error };
             }
         } catch (error) {
-            let errorMessage = 'Ошибка регистрации';
+            console.error('Register error details:', error);
+            
+            let errorMessage = 'Ошибка соединения с сервером';
             
             if (error.response) {
-                errorMessage = error.response.data?.error || 'Ошибка регистрации';
+                errorMessage = error.response.data?.error || `Ошибка ${error.response.status}`;
             } else if (error.request) {
-                errorMessage = 'Сервер не отвечает';
+                errorMessage = 'Сервер не отвечает. Проверьте, запущен ли сервер.';
             }
             
             dispatch({
                 type: REGISTER_FAILURE,
                 payload: errorMessage
             });
+            
             return { success: false, error: errorMessage };
         }
     };

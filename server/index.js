@@ -149,12 +149,31 @@ const server = http.createServer((req, res) => {
             req.on('data', chunk => {
                 body += chunk.toString();
             });
-            
+    
             req.on('end', () => {
                 try {
                     const { username, password, email } = JSON.parse(body);
-                    console.log(`Register attempt: ${username}`);
-                    
+                    console.log(`Register attempt: ${username}, ${email}`);
+            
+                    // Валидация
+                    if (!username || !password || !email) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            success: false,
+                            error: 'Все поля обязательны для заполнения'
+                        }));
+                        return;
+                    }
+            
+                    if (password.length < 6) {
+                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            success: false,
+                            error: 'Пароль должен содержать минимум 6 символов'
+                        }));
+                        return;
+                    }
+            
                     // Проверка существования пользователя
                     const existingUser = users.find(u => u.username === username);
                     if (existingUser) {
@@ -165,7 +184,7 @@ const server = http.createServer((req, res) => {
                         }));
                         return;
                     }
-                    
+            
                     // Проверка email
                     const existingEmail = users.find(u => u.email === email);
                     if (existingEmail) {
@@ -176,7 +195,7 @@ const server = http.createServer((req, res) => {
                         }));
                         return;
                     }
-                    
+            
                     // Создание нового пользователя
                     const newUser = {
                         id: users.length + 1,
@@ -185,13 +204,14 @@ const server = http.createServer((req, res) => {
                         email: email,
                         name: username
                     };
-                    
+            
                     users.push(newUser);
-                    console.log(`User registered: ${username}`);
-                    
+                    console.log(`User registered successfully: ${username}`);
+            
                     res.writeHead(201, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({
                         success: true,
+                        message: 'Регистрация успешна',
                         user: {
                             id: newUser.id,
                             username: newUser.username,
@@ -208,7 +228,7 @@ const server = http.createServer((req, res) => {
                     }));
                 }
             });
-            
+
             return;
         }
         

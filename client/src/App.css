@@ -57,8 +57,6 @@ body.dark {
 .app-header h1 {
     font-size: 28px;
     background: linear-gradient(45deg, #1db954, #1ed760);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     margin: 0;
 }
 

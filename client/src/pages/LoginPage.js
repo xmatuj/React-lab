@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../store/slices/authSlice';
+import { useLoginMutation } from '../store/api/authApi';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [localError, setLocalError] = useState('');
     
-    const dispatch = useDispatch();
+    const [login, { isLoading, error: apiError }] = useLoginMutation();
     const navigate = useNavigate();
     const location = useLocation();
-    const { loading, error, isAuthenticated } = useSelector(state => state.auth);
+    const { isAuthenticated } = useAuth();
 
     const from = location.state?.from?.pathname || '/goods';
 
@@ -29,21 +29,21 @@ const LoginPage = () => {
         }
 
         try {
-            const result = await dispatch(login({ 
+            const result = await login({ 
                 username: username.trim(), 
                 password: password.trim() 
-            })).unwrap();
+            }).unwrap();
             
             if (result.success) {
                 navigate(from, { replace: true });
             }
         } catch (err) {
             console.error('Login error:', err);
-            setLocalError(err || 'Ошибка авторизации');
+            setLocalError(err.data?.error || 'Ошибка авторизации');
         }
     };
 
-    const displayError = localError || error;
+    const displayError = localError || (apiError?.data?.error);
 
     return (
         <div className="container">
@@ -60,7 +60,7 @@ const LoginPage = () => {
                             id="username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            disabled={loading}
+                            disabled={isLoading}
                             placeholder="Введите имя пользователя"
                             autoComplete="username"
                         />
@@ -73,7 +73,7 @@ const LoginPage = () => {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            disabled={loading}
+                            disabled={isLoading}
                             placeholder="Введите пароль"
                             autoComplete="current-password"
                         />
@@ -82,9 +82,9 @@ const LoginPage = () => {
                     <button 
                         type="submit" 
                         className="login-btn"
-                        disabled={loading}
+                        disabled={isLoading}
                     >
-                        {loading ? 'Вход...' : 'Войти'}
+                        {isLoading ? 'Вход...' : 'Войти'}
                     </button>
                 </form>
                 

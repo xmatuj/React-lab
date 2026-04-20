@@ -1,19 +1,14 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchOrders } from '../store/slices/ordersSlice';
+import { useGetOrdersQuery } from '../store/api/ordersApi';
 
 const OrderConfirmationPage = () => {
     const { orderId } = useParams();
-    const dispatch = useDispatch();
-    const orders = useSelector(state => state.orders.orders);
+    const { data, isLoading } = useGetOrdersQuery();
+    
+    // Безопасное извлечение заказа
+    const orders = Array.isArray(data?.orders) ? data.orders : [];
     const order = orders.find(o => o.id === parseInt(orderId));
-
-    useEffect(() => {
-        if (!order) {
-            dispatch(fetchOrders());
-        }
-    }, [dispatch, order]);
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('ru-RU', {
@@ -22,8 +17,21 @@ const OrderConfirmationPage = () => {
         }).format(price);
     };
 
-    if (!order) {
+    if (isLoading) {
         return <div className="loading">Загрузка информации о заказе...</div>;
+    }
+
+    if (!order) {
+        return (
+            <div className="container">
+                <div className="error">
+                    <p>Заказ не найден</p>
+                    <Link to="/orders" className="btn primary-btn">
+                        Перейти к заказам
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -36,7 +44,7 @@ const OrderConfirmationPage = () => {
                 
                 <div className="order-details">
                     <h2>Детали заказа</h2>
-                    {order.items.map(item => (
+                    {order.items && order.items.map(item => (
                         <div key={item.id} className="order-item">
                             <span>{item.name} x {item.quantity}</span>
                             <span>{formatPrice(item.price * item.quantity)}</span>

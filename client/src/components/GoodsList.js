@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 
-const GoodsList = ({ items, loading, error, hasMore, onLoadMore }) => {
+const GoodsList = ({ items, loading, error, hasMore, onLoadMore, isFetching }) => {
     const dispatch = useDispatch();
 
     const handleAddToCart = (item) => {
@@ -73,13 +73,13 @@ const GoodsList = ({ items, loading, error, hasMore, onLoadMore }) => {
                 <button 
                     className="load-more-btn"
                     onClick={onLoadMore}
-                    disabled={loading}
+                    disabled={isFetching}
                 >
-                    {loading ? 'Загрузка...' : 'Загрузить больше'}
+                    {isFetching ? 'Загрузка...' : 'Загрузить больше'}
                 </button>
             )}
             
-            {loading && items.length > 0 && (
+            {isFetching && items.length > 0 && (
                 <div className="loading" style={{ padding: '20px' }}>
                     Загрузка дополнительных товаров...
                 </div>

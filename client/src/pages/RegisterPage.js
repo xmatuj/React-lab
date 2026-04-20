@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { register, login } from '../store/slices/authSlice';
+import { useRegisterMutation, useLoginMutation } from '../store/api/authApi';
+import { useAuth } from '../context/AuthContext';
 
 const RegisterPage = () => {
-    const dispatch = useDispatch();
+    const [register, { isLoading: isRegistering }] = useRegisterMutation();
+    const [login, { isLoading: isLoggingIn }] = useLoginMutation();
     const navigate = useNavigate();
-    const { loading, error, isAuthenticated } = useSelector(state => state.auth);
+    const { isAuthenticated } = useAuth();
     
     const [formData, setFormData] = useState({
         username: '',
@@ -55,34 +56,33 @@ const RegisterPage = () => {
         }
 
         try {
-            // Сначала регистрируем пользователя
-            await dispatch(register({
+            await register({
                 username: formData.username,
                 password: formData.password,
                 email: formData.email
-            })).unwrap();
+            }).unwrap();
 
-            // Если регистрация успешна, автоматически входим
-            await dispatch(login({
+            await login({
                 username: formData.username,
                 password: formData.password
-            })).unwrap();
+            }).unwrap();
 
-            // Перенаправляем на страницу товаров
             navigate('/goods');
         } catch (err) {
-            setValidationError(err || 'Ошибка регистрации');
+            setValidationError(err.data?.error || 'Ошибка регистрации');
         }
     };
+
+    const isLoading = isRegistering || isLoggingIn;
 
     return (
         <div className="container">
             <div className="auth-container">
                 <h2>Регистрация</h2>
                 
-                {(error || validationError) && (
+                {validationError && (
                     <div className="error-message">
-                        {validationError || error}
+                        {validationError}
                     </div>
                 )}
                 
@@ -95,7 +95,7 @@ const RegisterPage = () => {
                             name="username"
                             value={formData.username}
                             onChange={handleChange}
-                            disabled={loading}
+                            disabled={isLoading}
                             required
                             placeholder="Введите имя пользователя"
                             autoComplete="username"
@@ -110,7 +110,7 @@ const RegisterPage = () => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            disabled={loading}
+                            disabled={isLoading}
                             required
                             placeholder="Введите email"
                             autoComplete="email"
@@ -125,7 +125,7 @@ const RegisterPage = () => {
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            disabled={loading}
+                            disabled={isLoading}
                             required
                             placeholder="Минимум 6 символов"
                             autoComplete="new-password"
@@ -140,7 +140,7 @@ const RegisterPage = () => {
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            disabled={loading}
+                            disabled={isLoading}
                             required
                             placeholder="Повторите пароль"
                             autoComplete="new-password"
@@ -150,10 +150,10 @@ const RegisterPage = () => {
                     <button 
                         type="submit" 
                         className="btn primary-btn"
-                        disabled={loading}
+                        disabled={isLoading}
                         style={{ width: '100%' }}
                     >
-                        {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+                        {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
                     </button>
                 </form>
                 

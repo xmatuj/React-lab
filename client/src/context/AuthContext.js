@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth, logout as logoutAction } from '../store/slices/authSlice';
+import { useCheckAuthQuery } from '../store/api/authApi';
+import { logout as logoutAction } from '../store/slices/authSlice';
 
 const AuthContext = createContext();
 
@@ -15,20 +16,16 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const dispatch = useDispatch();
     const auth = useSelector(state => state.auth);
-
-    useEffect(() => {
-        dispatch(checkAuth());
-    }, [dispatch]);
+    const { isLoading } = useCheckAuthQuery();
 
     const logout = () => {
         dispatch(logoutAction());
     };
 
     const value = {
-        isAuthenticated: auth.isAuthenticated,
+        isAuthenticated: !!auth.user,
         user: auth.user,
-        loading: auth.loading,
-        error: auth.error,
+        loading: isLoading,
         logout
     };
 

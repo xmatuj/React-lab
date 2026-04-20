@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { createOrder } from '../store/slices/ordersSlice';
+import { useCreateOrderMutation } from '../store/api/ordersApi';
 import { clearCart } from '../store/slices/cartSlice';
 
 const CheckoutPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const cart = useSelector(state => state.cart);
+    const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
+    
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -21,7 +23,6 @@ const CheckoutPage = () => {
         cardExpiry: '',
         cardCvv: ''
     });
-    const [processing, setProcessing] = useState(false);
 
     const handleInputChange = (e) => {
         setFormData({
@@ -39,8 +40,6 @@ const CheckoutPage = () => {
     };
 
     const handleSubmitOrder = async () => {
-        setProcessing(true);
-        
         const orderData = {
             items: cart.items,
             totalAmount: cart.totalAmount,
@@ -56,14 +55,12 @@ const CheckoutPage = () => {
         };
 
         try {
-            const order = await dispatch(createOrder(orderData)).unwrap();
+            const order = await createOrder(orderData).unwrap();
             dispatch(clearCart());
             navigate(`/order-confirmation/${order.id}`);
         } catch (error) {
             console.error('Order creation failed:', error);
         }
-        
-        setProcessing(false);
     };
 
     const formatPrice = (price) => {
@@ -335,9 +332,9 @@ const CheckoutPage = () => {
                                 type="button"
                                 className="btn primary-btn"
                                 onClick={handleSubmitOrder}
-                                disabled={processing}
+                                disabled={isCreating}
                             >
-                                {processing ? 'Обработка...' : 'Подтвердить заказ'}
+                                {isCreating ? 'Обработка...' : 'Подтвердить заказ'}
                             </button>
                         </div>
                     </div>

@@ -2,12 +2,13 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { removeFromCart, updateQuantity } from '../store/slices/cartSlice';
+import { useAuth } from '../context/AuthContext';
 
 const CartPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const cart = useSelector(state => state.cart);
-    const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+    const { isAuthenticated } = useAuth();
 
     const handleQuantityChange = (itemId, quantity) => {
         if (quantity > 0) {
@@ -21,7 +22,7 @@ const CartPage = () => {
 
     const handleCheckout = () => {
         if (!isAuthenticated) {
-            navigate('/login');
+            navigate('/login', { state: { from: { pathname: '/cart' } } });
             return;
         }
         navigate('/checkout');

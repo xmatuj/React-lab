@@ -1,16 +1,13 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchOrders } from '../store/slices/ordersSlice';
+import React from 'react';
+import { useGetOrdersQuery } from '../store/api/ordersApi';
 import { useNavigate } from 'react-router-dom';
 
 const OrdersPage = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { orders, loading, error } = useSelector(state => state.orders);
-
-    useEffect(() => {
-        dispatch(fetchOrders());
-    }, [dispatch]);
+    const { data, isLoading, error } = useGetOrdersQuery();
+    
+    // Убеждаемся, что orders всегда массив
+    const orders = Array.isArray(data?.orders) ? data.orders : [];
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('ru-RU', {
@@ -29,12 +26,17 @@ const OrdersPage = () => {
         });
     };
 
-    if (loading) {
+    if (isLoading) {
         return <div className="loading">Загрузка заказов...</div>;
     }
 
     if (error) {
-        return <div className="error">{error}</div>;
+        console.error('Orders error:', error);
+        return (
+            <div className="error">
+                {error.data?.error || error.error || 'Ошибка загрузки заказов'}
+            </div>
+        );
     }
 
     return (
@@ -63,7 +65,7 @@ const OrdersPage = () => {
                             </div>
                             
                             <div className="order-items">
-                                {order.items.map(item => (
+                                {order.items && order.items.map(item => (
                                     <div key={item.id} className="order-item">
                                         <span>{item.name} x {item.quantity}</span>
                                         <span>{formatPrice(item.price * item.quantity)}</span>

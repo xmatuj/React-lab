@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { register, login } from '../store/slices/authSlice';
@@ -15,8 +15,17 @@ const RegisterPage = () => {
         confirmPassword: ''
     });
     const [validationError, setValidationError] = useState('');
+    const [registered, setRegistered] = useState(false);
 
-    if (isAuthenticated) {
+    // Хуки должны быть вызваны до условных возвратов
+    useEffect(() => {
+        if (isAuthenticated && registered) {
+            navigate('/goods');
+        }
+    }, [isAuthenticated, registered, navigate]);
+
+    // Если уже авторизован, редирект
+    if (isAuthenticated && !registered) {
         navigate('/');
         return null;
     }
@@ -28,11 +37,10 @@ const RegisterPage = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setValidationError('');
 
-        // Валидация
         if (!formData.username || !formData.email || !formData.password) {
             setValidationError('Все поля обязательны для заполнения');
             return;
@@ -54,35 +62,34 @@ const RegisterPage = () => {
             return;
         }
 
-        try {
-            // Сначала регистрируем пользователя
-            await dispatch(register({
-                username: formData.username,
-                password: formData.password,
-                email: formData.email
-            })).unwrap();
-
-            // Если регистрация успешна, автоматически входим
-            await dispatch(login({
+        setRegistered(true);
+        
+        // Регистрация
+        dispatch(register({
+            username: formData.username,
+            password: formData.password,
+            email: formData.email
+        }));
+        
+        // Ждем немного и пробуем войти
+        setTimeout(() => {
+            dispatch(login({
                 username: formData.username,
                 password: formData.password
-            })).unwrap();
-
-            // Перенаправляем на страницу товаров
-            navigate('/goods');
-        } catch (err) {
-            setValidationError(err || 'Ошибка регистрации');
-        }
+            }));
+        }, 500);
     };
+
+    const errorMessage = typeof error === 'string' ? error : (error?.message || null);
 
     return (
         <div className="container">
             <div className="auth-container">
                 <h2>Регистрация</h2>
                 
-                {(error || validationError) && (
+                {(validationError || errorMessage) && (
                     <div className="error-message">
-                        {validationError || error}
+                        {validationError || errorMessage}
                     </div>
                 )}
                 
@@ -98,7 +105,6 @@ const RegisterPage = () => {
                             disabled={loading}
                             required
                             placeholder="Введите имя пользователя"
-                            autoComplete="username"
                         />
                     </div>
                     
@@ -113,7 +119,6 @@ const RegisterPage = () => {
                             disabled={loading}
                             required
                             placeholder="Введите email"
-                            autoComplete="email"
                         />
                     </div>
                     
@@ -128,7 +133,6 @@ const RegisterPage = () => {
                             disabled={loading}
                             required
                             placeholder="Минимум 6 символов"
-                            autoComplete="new-password"
                         />
                     </div>
                     
@@ -143,7 +147,6 @@ const RegisterPage = () => {
                             disabled={loading}
                             required
                             placeholder="Повторите пароль"
-                            autoComplete="new-password"
                         />
                     </div>
                     
@@ -160,10 +163,6 @@ const RegisterPage = () => {
                 <p className="auth-link">
                     Уже есть аккаунт? <Link to="/login">Войти</Link>
                 </p>
-                
-                <div style={{ marginTop: '20px', fontSize: '14px', color: '#888' }}>
-                    <p>После регистрации вы будете автоматически авторизованы</p>
-                </div>
             </div>
         </div>
     );

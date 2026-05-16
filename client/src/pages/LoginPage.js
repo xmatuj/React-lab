@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../store/slices/authSlice';
@@ -7,6 +7,7 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [localError, setLocalError] = useState('');
+    const [loginTriggered, setLoginTriggered] = useState(false);
     
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -15,35 +16,36 @@ const LoginPage = () => {
 
     const from = location.state?.from?.pathname || '/goods';
 
-    if (isAuthenticated) {
+    // Редирект при успешной авторизации
+    useEffect(() => {
+        if (isAuthenticated && loginTriggered) {
+            navigate(from, { replace: true });
+        }
+    }, [isAuthenticated, loginTriggered, navigate, from]);
+
+    if (isAuthenticated && !loginTriggered) {
         return <Navigate to={from} replace />;
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setLocalError('');
+        setLoginTriggered(true);
         
         if (!username.trim() || !password.trim()) {
             setLocalError('Пожалуйста, заполните все поля');
+            setLoginTriggered(false);
             return;
         }
 
-        try {
-            const result = await dispatch(login({ 
-                username: username.trim(), 
-                password: password.trim() 
-            })).unwrap();
-            
-            if (result.success) {
-                navigate(from, { replace: true });
-            }
-        } catch (err) {
-            console.error('Login error:', err);
-            setLocalError(err || 'Ошибка авторизации');
-        }
+        dispatch(login({ 
+            username: username.trim(), 
+            password: password.trim()
+        }));
     };
 
-    const displayError = localError || error;
+    const errorMessage = typeof error === 'string' ? error : (error?.message || null);
+    const displayError = localError || errorMessage;
 
     return (
         <div className="container">
@@ -62,7 +64,6 @@ const LoginPage = () => {
                             onChange={(e) => setUsername(e.target.value)}
                             disabled={loading}
                             placeholder="Введите имя пользователя"
-                            autoComplete="username"
                         />
                     </div>
                     
@@ -75,15 +76,10 @@ const LoginPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                             placeholder="Введите пароль"
-                            autoComplete="current-password"
                         />
                     </div>
                     
-                    <button 
-                        type="submit" 
-                        className="login-btn"
-                        disabled={loading}
-                    >
+                    <button type="submit" className="login-btn" disabled={loading}>
                         {loading ? 'Вход...' : 'Войти'}
                     </button>
                 </form>

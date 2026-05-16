@@ -1,81 +1,66 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { goodsService } from '../../services/goodsService';
+import { createSagaSlice } from '../createSagaSlice';
 
-const API_URL = 'http://localhost:3001/api';
+const initialState = {
+  items: [],
+  loading: false,
+  error: null,
+  hasMore: true,
+  page: 1,
+  total: 0,
+  category: 'all',
+};
 
-export const fetchGoods = createAsyncThunk(
-    'goods/fetchGoods',
-    async ({ page = 1, limit = 10, category = 'all', reset = false }, { rejectWithValue }) => {
-        try {
-            const response = await axios.get(`${API_URL}/goods`, {
-                params: {
-                    page,
-                    limit,
-                    category: category !== 'all' ? category : undefined
-                }
-            });
-            
-            return {
-                ...response.data,
-                reset
-            };
-        } catch (error) {
-            return rejectWithValue(error.response?.data?.error || 'Ошибка загрузки товаров');
-        }
-    }
-);
-
-const goodsSlice = createSlice({
-    name: 'goods',
-    initialState: {
-        items: [],
-        loading: false,
-        error: null,
-        hasMore: true,
-        page: 1,
-        total: 0,
-        category: 'all'
+const { reducer, actions, saga } = createSagaSlice({
+  name: 'goods',
+  initialState,
+  reducers: {
+    setCategory: (state, action) => {
+      state.category = action.payload;
+      state.items = [];
+      state.page = 1;
+      state.hasMore = true;
     },
-    reducers: {
-        setCategory: (state, action) => {
-            state.category = action.payload;
-            state.items = [];
-            state.page = 1;
-            state.hasMore = true;
-        },
-        clearGoods: (state) => {
-            state.items = [];
-            state.page = 1;
-            state.hasMore = true;
-            state.error = null;
-        }
+    clearGoods: (state) => {
+      state.items = [];
+      state.page = 1;
+      state.hasMore = true;
+      state.error = null;
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchGoods.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(fetchGoods.fulfilled, (state, action) => {
-                const { items, total, hasMore, reset } = action.payload;
-                
-                state.items = reset ? items : [...state.items, ...items];
-                state.total = total;
-                state.hasMore = hasMore;
-                state.loading = false;
-                state.error = null;
-                if (reset) {
-                    state.page = 1;
-                } else {
-                    state.page += 1;
-                }
-            })
-            .addCase(fetchGoods.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
-    }
+  },
+  asyncReducers: {
+    fetchGoods: {
+      handler: async ({ page = 1, limit = 10, category = 'all', reset = false }, state) => {
+        const result = await goodsService.fetchGoods({ 
+          page, 
+          limit, 
+          category: reset ? state.goods.category : category 
+        });
+        return {
+          ...result,
+          reset,
+          page,
+        };
+      },
+      onSuccess: (state, action) => {
+        const { items, total, hasMore, reset, page } = action.payload;
+        
+        if (reset) {
+          state.items = items;
+          state.page = page;
+        } else {
+          state.items = [...state.items, ...items];
+          state.page = page + 1;
+        }
+        
+        state.total = total;
+        state.hasMore = hasMore;
+        state.error = null;
+      },
+    },
+  },
 });
 
-export const { setCategory, clearGoods } = goodsSlice.actions;
-export default goodsSlice.reducer;
+export const { fetchGoods, setCategory, clearGoods } = actions;
+export const goodsSaga = saga;
+export default reducer;

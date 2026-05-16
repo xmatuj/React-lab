@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { createOrder } from '../store/slices/ordersSlice';
+import { createOrder, resetOrderCreated } from '../store/slices/ordersSlice';
 import { clearCart } from '../store/slices/cartSlice';
 
 const CheckoutPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const cart = useSelector(state => state.cart);
+    const { creating, orderCreated, lastCreatedOrder } = useSelector(state => state.orders);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         firstName: '',
@@ -21,7 +22,15 @@ const CheckoutPage = () => {
         cardExpiry: '',
         cardCvv: ''
     });
-    const [processing, setProcessing] = useState(false);
+
+    // Отслеживаем создание заказа
+    useEffect(() => {
+        if (orderCreated && lastCreatedOrder) {
+            dispatch(clearCart());
+            dispatch(resetOrderCreated());
+            navigate(`/order-confirmation/${lastCreatedOrder.id}`);
+        }
+    }, [orderCreated, lastCreatedOrder, dispatch, navigate]);
 
     const handleInputChange = (e) => {
         setFormData({
@@ -38,9 +47,7 @@ const CheckoutPage = () => {
         setStep(step - 1);
     };
 
-    const handleSubmitOrder = async () => {
-        setProcessing(true);
-        
+    const handleSubmitOrder = () => {
         const orderData = {
             items: cart.items,
             totalAmount: cart.totalAmount,
@@ -55,15 +62,7 @@ const CheckoutPage = () => {
             paymentMethod: formData.paymentMethod
         };
 
-        try {
-            const order = await dispatch(createOrder(orderData)).unwrap();
-            dispatch(clearCart());
-            navigate(`/order-confirmation/${order.id}`);
-        } catch (error) {
-            console.error('Order creation failed:', error);
-        }
-        
-        setProcessing(false);
+        dispatch(createOrder(orderData));
     };
 
     const formatPrice = (price) => {
@@ -73,7 +72,7 @@ const CheckoutPage = () => {
         }).format(price);
     };
 
-    if (cart.items.length === 0) {
+    if (cart.items.length === 0 && !creating) {
         navigate('/cart');
         return null;
     }
@@ -103,7 +102,7 @@ const CheckoutPage = () => {
                         <h2>Контактная информация</h2>
                         <form>
                             <div className="form-group">
-                                <label>Имя</label>
+                                <label>Имя *</label>
                                 <input
                                     type="text"
                                     name="firstName"
@@ -114,7 +113,7 @@ const CheckoutPage = () => {
                             </div>
                             
                             <div className="form-group">
-                                <label>Фамилия</label>
+                                <label>Фамилия *</label>
                                 <input
                                     type="text"
                                     name="lastName"
@@ -125,7 +124,7 @@ const CheckoutPage = () => {
                             </div>
                             
                             <div className="form-group">
-                                <label>Email</label>
+                                <label>Email *</label>
                                 <input
                                     type="email"
                                     name="email"
@@ -136,7 +135,7 @@ const CheckoutPage = () => {
                             </div>
                             
                             <div className="form-group">
-                                <label>Телефон</label>
+                                <label>Телефон *</label>
                                 <input
                                     type="tel"
                                     name="phone"
@@ -163,7 +162,7 @@ const CheckoutPage = () => {
                         <h2>Адрес доставки</h2>
                         <form>
                             <div className="form-group">
-                                <label>Адрес</label>
+                                <label>Адрес *</label>
                                 <input
                                     type="text"
                                     name="address"
@@ -174,7 +173,7 @@ const CheckoutPage = () => {
                             </div>
                             
                             <div className="form-group">
-                                <label>Город</label>
+                                <label>Город *</label>
                                 <input
                                     type="text"
                                     name="city"
@@ -220,7 +219,7 @@ const CheckoutPage = () => {
                                     />
                                     Банковская карта
                                 </label>
-                                <label>
+                                <label style={{ marginLeft: '20px' }}>
                                     <input
                                         type="radio"
                                         name="paymentMethod"
@@ -242,7 +241,6 @@ const CheckoutPage = () => {
                                             value={formData.cardNumber}
                                             onChange={handleInputChange}
                                             placeholder="0000 0000 0000 0000"
-                                            required
                                         />
                                     </div>
                                     
@@ -254,7 +252,6 @@ const CheckoutPage = () => {
                                             value={formData.cardExpiry}
                                             onChange={handleInputChange}
                                             placeholder="MM/YY"
-                                            required
                                         />
                                     </div>
                                     
@@ -267,7 +264,6 @@ const CheckoutPage = () => {
                                             onChange={handleInputChange}
                                             placeholder="123"
                                             maxLength="3"
-                                            required
                                         />
                                     </div>
                                 </>
@@ -335,9 +331,9 @@ const CheckoutPage = () => {
                                 type="button"
                                 className="btn primary-btn"
                                 onClick={handleSubmitOrder}
-                                disabled={processing}
+                                disabled={creating}
                             >
-                                {processing ? 'Обработка...' : 'Подтвердить заказ'}
+                                {creating ? 'Обработка...' : 'Подтвердить заказ'}
                             </button>
                         </div>
                     </div>

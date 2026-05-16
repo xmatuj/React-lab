@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth, logout as logoutAction } from '../store/slices/authSlice';
+import { logout as logoutAction, restoreAuth } from '../store/slices/authSlice';
 
 const AuthContext = createContext();
 
@@ -17,7 +17,12 @@ export const AuthProvider = ({ children }) => {
     const auth = useSelector(state => state.auth);
 
     useEffect(() => {
-        dispatch(checkAuth());
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        
+        if (token && user) {
+            dispatch(restoreAuth({ user, token }));
+        }
     }, [dispatch]);
 
     const logout = () => {
@@ -29,7 +34,7 @@ export const AuthProvider = ({ children }) => {
         user: auth.user,
         loading: auth.loading,
         error: auth.error,
-        logout
+        logout,
     };
 
     return (

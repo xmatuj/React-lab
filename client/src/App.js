@@ -16,34 +16,37 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import SkipToContent from './components/SkipToContent';
-import { restoreCart } from './store/slices/cartSlice';
+import AccessibilityPanel from './components/AccessibilityPanel';
+import { setUserCart } from './store/slices/cartSlice';
 
 const ThemeApplier = () => {
   const theme = useSelector(state => state.ui.theme);
+  const fontSize = useSelector(state => state.ui.fontSize);
+  
   useEffect(() => {
     document.body.className = theme;
     document.documentElement.lang = 'ru';
-  }, [theme]);
+    document.documentElement.style.setProperty('--font-size-base', `${fontSize}%`);
+  }, [theme, fontSize]);
+  
   return null;
 };
 
-const CartRestorer = () => {
+const CartInitializer = () => {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector(state => state.auth);
   const { userId } = useSelector(state => state.cart);
 
   useEffect(() => {
-    if (isAuthenticated && user && (!userId || userId !== user.id)) {
-      const savedCart = localStorage.getItem(`cart_${user.id}`);
-      if (savedCart) {
-        try {
-          const cart = JSON.parse(savedCart);
-          dispatch(restoreCart({ userId: user.id, items: cart.items, totalAmount: cart.totalAmount, totalItems: cart.totalItems }));
-        } catch (e) {
-          console.error('Failed to restore cart:', e);
+    if (isAuthenticated && user) {
+      if (userId !== user.id) {
+        const savedCart = localStorage.getItem(`cart_${user.id}`);
+        if (savedCart) {
+          const parsed = JSON.parse(savedCart);
+          dispatch(setUserCart({ userId: user.id, cart: parsed }));
+        } else {
+          dispatch(setUserCart({ userId: user.id, cart: { items: [], totalAmount: 0, totalItems: 0 } }));
         }
-      } else {
-        dispatch(restoreCart({ userId: user.id, items: [], totalAmount: 0, totalItems: 0 }));
       }
     }
   }, [isAuthenticated, user, userId, dispatch]);
@@ -55,8 +58,9 @@ function AppContent() {
   return (
     <>
       <ThemeApplier />
-      <CartRestorer />
+      <CartInitializer />
       <SkipToContent />
+      <AccessibilityPanel />
       <Notifications />
       <Header />
       <main id="main-content" tabIndex="-1" style={{ minHeight: 'calc(100vh - 200px)' }}>

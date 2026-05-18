@@ -5,9 +5,15 @@ const loadThemeFromStorage = () => {
   return savedTheme === 'dark' ? 'dark' : 'light';
 };
 
+const loadFontSizeFromStorage = () => {
+  const savedSize = localStorage.getItem('fontSize');
+  return savedSize || '100';
+};
+
 const initialState = {
   theme: loadThemeFromStorage(),
   notifications: [],
+  fontSize: loadFontSizeFromStorage(),
 };
 
 let timeoutsMap = new Map();
@@ -19,7 +25,45 @@ const uiSlice = createSlice({
     toggleTheme: (state) => {
       state.theme = state.theme === 'light' ? 'dark' : 'light';
       localStorage.setItem('theme', state.theme);
-      if (typeof document !== 'undefined') document.body.className = state.theme;
+      if (typeof document !== 'undefined') {
+        document.body.className = state.theme;
+        document.documentElement.style.setProperty('--font-size-base', `${state.fontSize}%`);
+      }
+    },
+    setFontSize: (state, action) => {
+      let newSize = action.payload;
+      if (newSize < 70) newSize = 70;
+      if (newSize > 200) newSize = 200;
+      state.fontSize = newSize;
+      localStorage.setItem('fontSize', newSize);
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--font-size-base', `${newSize}%`);
+      }
+    },
+    increaseFontSize: (state) => {
+      let newSize = parseInt(state.fontSize) + 10;
+      if (newSize > 200) newSize = 200;
+      state.fontSize = newSize;
+      localStorage.setItem('fontSize', newSize);
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--font-size-base', `${newSize}%`);
+      }
+    },
+    decreaseFontSize: (state) => {
+      let newSize = parseInt(state.fontSize) - 10;
+      if (newSize < 70) newSize = 70;
+      state.fontSize = newSize;
+      localStorage.setItem('fontSize', newSize);
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--font-size-base', `${newSize}%`);
+      }
+    },
+    resetFontSize: (state) => {
+      state.fontSize = 100;
+      localStorage.setItem('fontSize', 100);
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--font-size-base', '100%');
+      }
     },
     addNotification: (state, action) => {
       const { message, type = 'info', duration = 5000 } = action.payload;
@@ -27,10 +71,8 @@ const uiSlice = createSlice({
       state.notifications.push({ id, message, type, duration });
       if (duration > 0) {
         const timeoutId = setTimeout(() => {
-          if (typeof window !== 'undefined') {
-            const store = require('../index').default;
-            if (store) store.dispatch(removeNotification(id));
-          }
+          const store = require('../index').default;
+          if (store) store.dispatch(removeNotification(id));
           timeoutsMap.delete(id);
         }, duration);
         timeoutsMap.set(id, timeoutId);
@@ -52,5 +94,15 @@ const uiSlice = createSlice({
   },
 });
 
-export const { toggleTheme, addNotification, removeNotification, clearNotifications } = uiSlice.actions;
+export const { 
+  toggleTheme, 
+  addNotification, 
+  removeNotification, 
+  clearNotifications,
+  setFontSize,
+  increaseFontSize,
+  decreaseFontSize,
+  resetFontSize
+} = uiSlice.actions;
+
 export default uiSlice.reducer;

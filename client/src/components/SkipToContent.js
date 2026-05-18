@@ -7,7 +7,7 @@ const SkipToContent = () => {
       className="skip-to-content"
       style={{
         position: 'absolute',
-        top: '-40px',
+        top: '-400px',
         left: '0',
         background: '#1db954',
         color: 'white',

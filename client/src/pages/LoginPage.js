@@ -16,7 +16,6 @@ const LoginPage = () => {
 
     const from = location.state?.from?.pathname || '/goods';
 
-    // Редирект при успешной авторизации
     useEffect(() => {
         if (isAuthenticated && loginTriggered) {
             navigate(from, { replace: true });

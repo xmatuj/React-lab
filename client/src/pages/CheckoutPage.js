@@ -23,7 +23,6 @@ const CheckoutPage = () => {
         cardCvv: ''
     });
 
-    // Отслеживаем создание заказа
     useEffect(() => {
         if (orderCreated && lastCreatedOrder) {
             dispatch(clearCart());

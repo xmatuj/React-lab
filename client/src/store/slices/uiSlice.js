@@ -35,7 +35,6 @@ const { reducer, actions, saga } = createSagaSlice({
   asyncReducers: {
     fetchNotifications: {
       handler: async () => {
-        // Симуляция API запроса
         await new Promise(resolve => setTimeout(resolve, 500));
         return [
           { id: 1, message: 'Добро пожаловать в MusicShop!', type: 'info' },

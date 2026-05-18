@@ -51,7 +51,6 @@ const { reducer, actions, saga } = createSagaSlice({
         state.loading = false;
       },
       onFailure: (state, action) => {
-        // Убеждаемся, что error - строка
         state.error = typeof action.payload === 'string' ? action.payload : 'Ошибка авторизации';
         state.loading = false;
       },
@@ -69,7 +68,6 @@ const { reducer, actions, saga } = createSagaSlice({
         state.loading = false;
       },
       onFailure: (state, action) => {
-        // Убеждаемся, что error - строка
         state.error = typeof action.payload === 'string' ? action.payload : 'Ошибка регистрации';
         state.loading = false;
       },

@@ -34,7 +34,6 @@ export function createSagaSlice({
 
     generatedReducers[failureName] = (state, action) => {
       state[loadingKey] = false;
-      // Убеждаемся, что error - строка
       const errorMessage = typeof action.payload === 'string' 
         ? action.payload 
         : (action.payload?.message || 'Произошла ошибка');
@@ -71,7 +70,6 @@ export function createSagaSlice({
           }
         } catch (err) {
           console.error(`Error in ${actionName}:`, err);
-          // Извлекаем строку ошибки
           const errorMessage = err?.response?.data?.error || err?.message || err || 'Произошла ошибка';
           
           yield put(slice.actions[failureName](errorMessage));

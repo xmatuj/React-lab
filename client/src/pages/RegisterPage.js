@@ -17,14 +17,12 @@ const RegisterPage = () => {
     const [validationError, setValidationError] = useState('');
     const [registered, setRegistered] = useState(false);
 
-    // Хуки должны быть вызваны до условных возвратов
     useEffect(() => {
         if (isAuthenticated && registered) {
             navigate('/goods');
         }
     }, [isAuthenticated, registered, navigate]);
 
-    // Если уже авторизован, редирект
     if (isAuthenticated && !registered) {
         navigate('/');
         return null;
@@ -64,14 +62,12 @@ const RegisterPage = () => {
 
         setRegistered(true);
         
-        // Регистрация
         dispatch(register({
             username: formData.username,
             password: formData.password,
             email: formData.email
         }));
         
-        // Ждем немного и пробуем войти
         setTimeout(() => {
             dispatch(login({
                 username: formData.username,

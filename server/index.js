@@ -19,29 +19,23 @@ const instruments = [
     { id: 11, name: 'Nord Piano 6', releaseDate: '2007-04-28', price: 429999.99, category: 'keyboards' }
 ];
 
-// Данные пользователей (в памяти)
 const users = [
     { id: 1, username: 'user', password: 'password', email: 'user@example.com', name: 'User' },
     { id: 2, username: 'admin', password: 'admin123', email: 'admin@example.com', name: 'Admin' }
 ];
 
-// Данные заказов (в памяти)
 let orders = [];
 let orderIdCounter = 1;
 
-// Токены авторизации (в памяти)
 const activeTokens = new Map();
 
 const server = http.createServer((req, res) => {
-    // Логирование запросов
     console.log(`${req.method} ${req.url}`);
     
-    // Настройка CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
-    // Обработка preflight запросов
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
@@ -51,23 +45,19 @@ const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
     
-    // Обработка API запросов
     if (pathname.startsWith('/api')) {
         console.log(`API Request: ${pathname}`);
         
-        // Эндпоинт для получения товаров
         if (pathname === '/api/goods' && req.method === 'GET') {
             const page = parseInt(parsedUrl.query.page) || 1;
             const limit = parseInt(parsedUrl.query.limit) || 10;
             const category = parsedUrl.query.category;
             
-            // Фильтрация по категории
             let filteredInstruments = instruments;
             if (category && category !== 'all' && category !== 'undefined') {
                 filteredInstruments = instruments.filter(item => item.category === category);
             }
             
-            // Пагинация
             const startIndex = (page - 1) * limit;
             const endIndex = page * limit;
             const paginatedItems = filteredInstruments.slice(startIndex, endIndex);
@@ -86,7 +76,6 @@ const server = http.createServer((req, res) => {
             return;
         }
         
-        // Эндпоинт для авторизации
         if (pathname === '/api/login' && req.method === 'POST') {
             let body = '';
             req.on('data', chunk => {
@@ -98,13 +87,11 @@ const server = http.createServer((req, res) => {
                     const { username, password } = JSON.parse(body);
                     console.log(`Login attempt: ${username} / ${password}`);
                     
-                    // Поиск пользователя
                     const user = users.find(u => 
                         u.username === username && u.password === password
                     );
                     
                     if (user) {
-                        // Создание токена
                         const token = 'fake-jwt-token-' + Date.now() + '-' + user.id;
                         activeTokens.set(token, user.id);
                         
@@ -143,7 +130,6 @@ const server = http.createServer((req, res) => {
             return;
         }
         
-        // Эндпоинт для регистрации
         if (pathname === '/api/register' && req.method === 'POST') {
             let body = '';
             req.on('data', chunk => {
@@ -155,7 +141,6 @@ const server = http.createServer((req, res) => {
                     const { username, password, email } = JSON.parse(body);
                     console.log(`Register attempt: ${username}, ${email}`);
             
-                    // Валидация
                     if (!username || !password || !email) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({
@@ -174,7 +159,6 @@ const server = http.createServer((req, res) => {
                         return;
                     }
             
-                    // Проверка существования пользователя
                     const existingUser = users.find(u => u.username === username);
                     if (existingUser) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -185,7 +169,6 @@ const server = http.createServer((req, res) => {
                         return;
                     }
             
-                    // Проверка email
                     const existingEmail = users.find(u => u.email === email);
                     if (existingEmail) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -196,7 +179,6 @@ const server = http.createServer((req, res) => {
                         return;
                     }
             
-                    // Создание нового пользователя
                     const newUser = {
                         id: users.length + 1,
                         username: username,
@@ -232,7 +214,6 @@ const server = http.createServer((req, res) => {
             return;
         }
         
-        // Эндпоинт для проверки авторизации
         if (pathname === '/api/check-auth' && req.method === 'GET') {
             const authHeader = req.headers.authorization;
             
@@ -263,7 +244,6 @@ const server = http.createServer((req, res) => {
             return;
         }
         
-        // Эндпоинт для создания заказа
         if (pathname === '/api/orders' && req.method === 'POST') {
             const authHeader = req.headers.authorization;
             
@@ -294,7 +274,6 @@ const server = http.createServer((req, res) => {
                     const orderData = JSON.parse(body);
                     console.log(`Creating order for user: ${user.username}`);
                     
-                    // Создание нового заказа
                     const newOrder = {
                         id: orderIdCounter++,
                         userId: userId,
@@ -328,7 +307,6 @@ const server = http.createServer((req, res) => {
             return;
         }
         
-        // Эндпоинт для получения заказов пользователя
         if (pathname === '/api/orders' && req.method === 'GET') {
             const authHeader = req.headers.authorization;
             
@@ -347,7 +325,6 @@ const server = http.createServer((req, res) => {
                 return;
             }
             
-            // Фильтрация заказов для текущего пользователя
             const userOrders = orders
                 .filter(order => order.userId === userId)
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -360,14 +337,12 @@ const server = http.createServer((req, res) => {
             return;
         }
         
-        // Если API маршрут не найден
         console.log(`API endpoint not found: ${pathname}`);
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'API endpoint not found' }));
         return;
     }
     
-    // Обработка остальных запросов
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('MusicShop Server is running');
 });
@@ -392,7 +367,6 @@ server.listen(PORT, () => {
     console.log(`=================================`);
 });
 
-// Обработка ошибок сервера
 server.on('error', (error) => {
     if (error.code === 'EADDRINUSE') {
         console.error(`Port ${PORT} is already in use. Please close the application using this port or use a different port.`);

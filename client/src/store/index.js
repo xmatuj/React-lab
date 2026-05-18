@@ -7,7 +7,6 @@ import ordersReducer, { ordersSaga } from './slices/ordersSlice';
 import uiReducer, { uiSaga } from './slices/uiSlice';
 import { all } from 'redux-saga/effects';
 
-// Создаем root saga
 function* rootSaga() {
   yield all([
     authSaga(),

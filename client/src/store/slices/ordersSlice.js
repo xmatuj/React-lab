@@ -20,9 +20,7 @@ const { reducer, actions, saga } = createSagaSlice({
     updateOrderStatus: (state, action) => {
       const { orderId, status } = action.payload;
       const order = state.orders.find(o => o.id === orderId);
-      if (order) {
-        order.status = status;
-      }
+      if (order) order.status = status;
     },
     resetOrderCreated: (state) => {
       state.orderCreated = false;
@@ -76,12 +74,6 @@ const { reducer, actions, saga } = createSagaSlice({
   },
 });
 
-export const { 
-  fetchOrders, 
-  createOrder, 
-  clearOrdersError, 
-  updateOrderStatus,
-  resetOrderCreated 
-} = actions;
+export const { fetchOrders, createOrder, clearOrdersError, updateOrderStatus, resetOrderCreated } = actions;
 export const ordersSaga = saga;
 export default reducer;

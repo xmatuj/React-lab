@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeNotification } from '../store/slices/uiSlice';
 
 const Notifications = () => {
   const dispatch = useDispatch();
   const notifications = useSelector(state => state.ui.notifications);
+
+  useEffect(() => {
+    notifications.forEach(notif => {
+      if (notif.timeoutId) {
+        const timer = setTimeout(() => dispatch(removeNotification(notif.id)), notif.duration || 5000);
+        return () => clearTimeout(timer);
+      }
+    });
+  }, [notifications, dispatch]);
 
   if (notifications.length === 0) return null;
 
@@ -27,43 +36,23 @@ const Notifications = () => {
   };
 
   return (
-    <div className="notifications-container">
+    <div className="notifications-container" role="region" aria-label="Уведомления">
       {notifications.map(notif => (
         <div
           key={notif.id}
           className={`notification notification-${notif.type}`}
-          style={{
-            backgroundColor: getBackgroundColor(notif.type),
-            color: 'white',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            cursor: 'pointer',
-          }}
-          onClick={() => dispatch(removeNotification(notif.id))}
+          role="alert"
+          aria-live="polite"
+          style={{ backgroundColor: getBackgroundColor(notif.type), color: 'white', padding: '12px 20px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '18px' }}>{getIcon(notif.type)}</span>
+            <span style={{ fontSize: '18px' }} aria-hidden="true">{getIcon(notif.type)}</span>
             <span>{notif.message}</span>
           </div>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              dispatch(removeNotification(notif.id));
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '16px',
-              opacity: 0.8,
-              padding: '0 5px',
-            }}
+            onClick={() => dispatch(removeNotification(notif.id))}
+            aria-label="Закрыть уведомление"
+            style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', opacity: 0.8, padding: '0 5px' }}
           >
             ✕
           </button>

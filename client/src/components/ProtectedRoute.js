@@ -5,16 +5,7 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSelector(state => state.auth);
 
   if (loading) {
-    return (
-      <div className="loading" style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        Загрузка...
-      </div>
-    );
+    return <div className="loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} aria-live="polite">Загрузка...</div>;
   }
 
   if (!isAuthenticated) {

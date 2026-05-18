@@ -63,7 +63,7 @@ const { reducer, actions, saga } = createSagaSlice({
         }
         return response.data;
       },
-      onSuccess: (state, action) => {
+      onSuccess: (state) => {
         state.error = null;
         state.loading = false;
       },

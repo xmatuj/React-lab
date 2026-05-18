@@ -36,15 +36,10 @@ const { reducer, actions, saga } = createSagaSlice({
           limit, 
           category: reset ? state.goods.category : category 
         });
-        return {
-          ...result,
-          reset,
-          page,
-        };
+        return { ...result, reset, page };
       },
       onSuccess: (state, action) => {
         const { items, total, hasMore, reset, page } = action.payload;
-        
         if (reset) {
           state.items = items;
           state.page = page;
@@ -52,7 +47,6 @@ const { reducer, actions, saga } = createSagaSlice({
           state.items = [...state.items, ...items];
           state.page = page + 1;
         }
-        
         state.total = total;
         state.hasMore = hasMore;
         state.error = null;

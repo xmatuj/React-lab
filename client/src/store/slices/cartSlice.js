@@ -1,4 +1,4 @@
-import { createSagaSlice } from '../createSagaSlice';
+import { createSlice } from '@reduxjs/toolkit';
 
 const calculateTotalAmount = (items) => {
   return items.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -14,7 +14,7 @@ const initialState = {
   totalItems: 0,
 };
 
-const { reducer, actions } = createSagaSlice({
+const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
@@ -50,8 +50,7 @@ const { reducer, actions } = createSagaSlice({
       state.totalItems = 0;
     },
   },
-  asyncReducers: {},
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } = actions;
-export default reducer;
+export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
+export default cartSlice.reducer;

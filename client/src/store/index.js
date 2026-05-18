@@ -1,11 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-import thunk from 'redux-thunk';
 import authReducer, { authSaga } from './slices/authSlice';
 import goodsReducer, { goodsSaga } from './slices/goodsSlice';
 import cartReducer from './slices/cartSlice';
 import ordersReducer, { ordersSaga } from './slices/ordersSlice';
-import uiReducer, { uiSaga } from './slices/uiSlice';
+import uiReducer from './slices/uiSlice';
 import { all } from 'redux-saga/effects';
 
 function* rootSaga() {
@@ -13,7 +12,6 @@ function* rootSaga() {
     authSaga(),
     goodsSaga(),
     ordersSaga(),
-    uiSaga(),
   ]);
 }
 

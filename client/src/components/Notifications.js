@@ -1,21 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeNotification } from '../store/slices/uiSlice';
 
 const Notifications = () => {
   const dispatch = useDispatch();
   const notifications = useSelector(state => state.ui.notifications);
-
-  useEffect(() => {
-    const handleRemoveNotification = (event) => {
-      dispatch(removeNotification(event.detail.id));
-    };
-
-    window.addEventListener('removeNotification', handleRemoveNotification);
-    return () => {
-      window.removeEventListener('removeNotification', handleRemoveNotification);
-    };
-  }, [dispatch]);
 
   if (notifications.length === 0) return null;
 
@@ -38,16 +27,7 @@ const Notifications = () => {
   };
 
   return (
-    <div className="notifications-container" style={{
-      position: 'fixed',
-      top: '80px',
-      right: '20px',
-      zIndex: 9999,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '10px',
-      maxWidth: '350px',
-    }}>
+    <div className="notifications-container">
       {notifications.map(notif => (
         <div
           key={notif.id}
@@ -62,7 +42,6 @@ const Notifications = () => {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '12px',
-            animation: 'slideIn 0.3s ease',
             cursor: 'pointer',
           }}
           onClick={() => dispatch(removeNotification(notif.id))}

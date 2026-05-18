@@ -19,7 +19,7 @@ const AccessibilityPanel = () => {
           position: 'fixed',
           bottom: '20px',
           right: '20px',
-          background: '#1db954',
+          background: 'none',
           color: 'white',
           border: 'none',
           borderRadius: '50%',
@@ -31,7 +31,7 @@ const AccessibilityPanel = () => {
           boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
         }}
       >
-        ♿
+        🔍
       </button>
 
       {isOpen && (
@@ -102,23 +102,6 @@ const AccessibilityPanel = () => {
               </button>
             </div>
           </div>
-
-          <button
-            onClick={() => setIsOpen(false)}
-            aria-label="Закрыть панель"
-            style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '16px',
-              color: 'var(--text)'
-            }}
-          >
-            ✕
-          </button>
         </div>
       )}
     </>

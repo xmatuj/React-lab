@@ -100,7 +100,6 @@ const Header = () => {
                         </>
                     )}
                     
-                    {/* Кнопка переключения темы */}
                     <button
                         onClick={handleToggleTheme}
                         style={{

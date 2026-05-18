@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { addNotification } from './uiSlice';
 
 const calculateTotalAmount = (items) => {
   return items.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -52,5 +53,40 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
+export const addToCartWithNotification = (item) => (dispatch) => {
+  dispatch(cartSlice.actions.addToCart(item));
+  dispatch(addNotification({
+    message: `${item.name} добавлен в корзину`,
+    type: 'success',
+    duration: 2000
+  }));
+};
+
+export const removeFromCartWithNotification = (itemId, itemName) => (dispatch) => {
+  dispatch(cartSlice.actions.removeFromCart(itemId));
+  dispatch(addNotification({
+    message: `${itemName} удалён из корзины`,
+    type: 'info',
+    duration: 2000
+  }));
+};
+
+export const updateQuantityWithNotification = (itemId, quantity, itemName) => (dispatch) => {
+  dispatch(cartSlice.actions.updateQuantity({ itemId, quantity }));
+  if (quantity > 0) {
+    dispatch(addNotification({
+      message: `${itemName}: количество изменено на ${quantity}`,
+      type: 'info',
+      duration: 1500
+    }));
+  }
+};
+
+export const { 
+  addToCart, 
+  removeFromCart, 
+  updateQuantity, 
+  clearCart 
+} = cartSlice.actions;
+
 export default cartSlice.reducer;

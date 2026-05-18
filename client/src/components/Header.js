@@ -1,16 +1,24 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useAuth } from '../context/AuthContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleTheme } from '../store/slices/uiSlice';
+import { logout } from '../store/slices/authSlice';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { isAuthenticated, user, logout } = useAuth();
+    const dispatch = useDispatch();
+    
+    const { isAuthenticated, user } = useSelector(state => state.auth);
     const cartItems = useSelector(state => state.cart.totalItems);
+    const theme = useSelector(state => state.ui.theme);
 
     const handleLogout = () => {
-        logout();
+        dispatch(logout());
         navigate('/');
+    };
+
+    const handleToggleTheme = () => {
+        dispatch(toggleTheme());
     };
 
     return (
@@ -60,7 +68,7 @@ const Header = () => {
                     {isAuthenticated ? (
                         <>
                             <span style={{ color: '#ff5722', padding: '8px 16px' }}>
-                                Привет, {user?.name || user?.username}!
+                                Привет, {user?.name || user?.username || user?.login}!
                             </span>
                             <button 
                                 onClick={handleLogout}
@@ -91,6 +99,23 @@ const Header = () => {
                             </NavLink>
                         </>
                     )}
+                    
+                    {/* Кнопка переключения темы */}
+                    <button
+                        onClick={handleToggleTheme}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '20px',
+                            cursor: 'pointer',
+                            padding: '8px 12px',
+                            borderRadius: '50%',
+                            marginLeft: '10px',
+                        }}
+                        title={theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
+                    >
+                        {theme === 'light' ? '🌙' : '☀️'}
+                    </button>
                 </nav>
             </div>
         </header>

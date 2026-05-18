@@ -1,7 +1,10 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { removeFromCart, updateQuantity } from '../store/slices/cartSlice';
+import { 
+  removeFromCartWithNotification, 
+  updateQuantityWithNotification 
+} from '../store/slices/cartSlice';
 
 const CartPage = () => {
     const dispatch = useDispatch();
@@ -9,14 +12,14 @@ const CartPage = () => {
     const cart = useSelector(state => state.cart);
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
-    const handleQuantityChange = (itemId, quantity) => {
+    const handleQuantityChange = (itemId, quantity, itemName) => {
         if (quantity > 0) {
-            dispatch(updateQuantity({ itemId, quantity }));
+            dispatch(updateQuantityWithNotification(itemId, quantity, itemName));
         }
     };
 
-    const handleRemove = (itemId) => {
-        dispatch(removeFromCart(itemId));
+    const handleRemove = (itemId, itemName) => {
+        dispatch(removeFromCartWithNotification(itemId, itemName));
     };
 
     const handleCheckout = () => {
@@ -67,14 +70,14 @@ const CartPage = () => {
                             <div className="cart-item-actions">
                                 <div className="quantity-control">
                                     <button 
-                                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                        onClick={() => handleQuantityChange(item.id, item.quantity - 1, item.name)}
                                         disabled={item.quantity <= 1}
                                     >
                                         -
                                     </button>
                                     <span>{item.quantity}</span>
                                     <button 
-                                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                        onClick={() => handleQuantityChange(item.id, item.quantity + 1, item.name)}
                                     >
                                         +
                                     </button>
@@ -86,7 +89,7 @@ const CartPage = () => {
                                 
                                 <button 
                                     className="remove-btn"
-                                    onClick={() => handleRemove(item.id)}
+                                    onClick={() => handleRemove(item.id, item.name)}
                                 >
                                     Удалить
                                 </button>

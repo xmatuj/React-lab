@@ -1,12 +1,12 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { addToCart } from '../store/slices/cartSlice';
+import { addToCartWithNotification } from '../store/slices/cartSlice';
 
 const GoodsList = ({ items, loading, error, hasMore, onLoadMore }) => {
     const dispatch = useDispatch();
 
     const handleAddToCart = (item) => {
-        dispatch(addToCart(item));
+        dispatch(addToCartWithNotification(item));
     };
 
     if (loading && items.length === 0) {

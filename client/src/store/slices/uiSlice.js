@@ -61,23 +61,7 @@ const { reducer, actions, saga } = createSagaSlice({
       state.error = null;
     },
   },
-  asyncReducers: {
-    fetchNotifications: {
-      handler: async () => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return [
-          { id: 1, message: 'Добро пожаловать в MusicShop!', type: 'info' },
-          { id: 2, message: 'Новые поступления гитар', type: 'success' },
-        ];
-      },
-      onSuccess: (state, action) => {
-        state.notifications = action.payload;
-        state.error = null;
-      },
-      loadingKey: 'loading',
-      errorKey: 'error',
-    },
-  },
+  asyncReducers: {},
 });
 
 export const { 
@@ -89,7 +73,7 @@ export const {
   setGlobalLoading,
   setGlobalError,
   clearGlobalError,
-  fetchNotifications 
 } = actions;
+
 export const uiSaga = saga;
 export default reducer;
